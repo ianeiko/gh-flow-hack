@@ -9,3 +9,6 @@ CONFIG_DIR ?= coder/template
 
 push:
 	set -a && . ./.env && set +a && coder templates push $(TEMPLATE_NAME) --directory $(CONFIG_DIR) --yes --var anthropic_api_key=$${ANTHROPIC_API_KEY}
+
+clean:
+	tasks=$$(coder task list -q) && [ -n "$$tasks" ] && echo "$$tasks" | xargs coder task delete --yes || echo "No tasks to delete"

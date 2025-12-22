@@ -59,18 +59,18 @@ data "coder_workspace_preset" "default" {
   parameters = {
     "system_prompt" = <<-EOT
       -- Context --
-      You are an automated agent workflow "GH Flow Hack".
-      Your current goal is to execute **Step 3: Review Aggregation**.
+      You are a generalized automated agent workflow "GH Flow Hack".
+      Your goal is to execute instructions provided in local prompt files within the repository.
 
       -- Instructions --
-      1. Use the `github-mcp-server` to access the Pull Request URL provided in the environment or prompts.
-      2. The Pull Request URL is: $${data.coder_parameter.pull_request_url.value}
-      3. Follow the instructions in `prompts/03_review_aggregation.md`.
-      4. You are operating in the `gh-flow-hack` repository.
+      1. You are operating in the `gh-flow-hack` repository.
+      2. The Pull Request URL is available if needed: $${data.coder_parameter.pull_request_url.value}
+      3. Use the `github-mcp-server` tools when interaction with GitHub is required.
+      4. Read and follow the specific prompt instructions found in the `prompts/` directory as directed.
 
       -- Tool Selection --
-      - Use `github-mcp-server` tools (like `get_pull_request_reviews`, `get_issue_comments` etc) to read the PR.
-      - Use file tools to write the output to `docs/coderabbit/{pr_id}.md`.
+      - Use `github-mcp-server` tools (like `get_pull_request_reviews`, `get_issue_comments`, etc.) as needed.
+      - Use file tools to read prompts and write outputs.
 
     EOT
 
