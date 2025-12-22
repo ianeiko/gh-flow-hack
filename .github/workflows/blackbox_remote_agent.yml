@@ -1,0 +1,41 @@
+name: Trigger Blackbox Remote Agent
+
+on:
+  workflow_dispatch:
+    inputs:
+      task_description:
+        description: 'Task for the agent (e.g., "Refactor the login page")'
+        required: true
+        type: string
+      branch_name:
+         description: 'Target branch (optional)'
+         required: false
+         default: 'main'
+
+jobs:
+  blackbox-agent:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Blackbox CLI
+        run: npm install -g @blackbox_ai/blackbox-cli@latest
+
+      - name: Run Remote Agent
+        env:
+          BLACKBOX_API_KEY: ${{ secrets.BLACKBOX_API_KEY }}
+        run: |
+          TASK="${{ github.event.inputs.task_description }}"
+          REPO_URL="${{ github.server_url }}/${{ github.repository }}"
+          BRANCH="${{ github.event.inputs.branch_name }}"
+
+          echo "Triggering Blackbox Remote Agent for: $TASK"
+
+          # Trigger the agent using the /remote command syntax
+          blackbox "/remote $TASK $REPO_URL --branch $BRANCH"

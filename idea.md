@@ -1,1 +1,1 @@
-In main.py, in the op folder, say hello world.
+In app/main.py, say hello world.
