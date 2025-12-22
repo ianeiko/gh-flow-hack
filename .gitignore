@@ -63,3 +63,8 @@ pnpm-debug.log*
 # General
 tmp/
 temp/
+
+# Teraform
+.terraform/
+*.tfstate
+*.tfstate.backup
