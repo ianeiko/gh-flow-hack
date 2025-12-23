@@ -41,27 +41,21 @@ module "claude-code" {
   source              = "registry.coder.com/coder/claude-code/coder"
   version             = "4.2.1"
   agent_id            = coder_agent.main.id
-  workdir             = "/home/coder/projects"
+  workdir             = "/home/coder/projects/gh-flow-hack"
   order               = 999
   claude_api_key      = var.anthropic_api_key
   ai_prompt           = data.coder_task.me.prompt
   system_prompt       = data.coder_parameter.system_prompt.value
   model               = "sonnet"
   permission_mode     = "plan"
-  post_install_script = data.coder_parameter.setup_script.value
-  mcp = <<-EOF
-  {
-    "mcpServers": {
-      "github": {
-        "url": "https://api.githubcopilot.com/mcp",
-        "type": "http",
-        "headers": {
-          "Authorization": "Bearer ${data.coder_external_auth.github.access_token}"
-        }
-      }
-    }
-  }
-  EOF
+  post_install_script = <<-EOT
+    ${data.coder_parameter.setup_script.value}
+
+    # Configure GitHub HTTP MCP server using Claude Code CLI
+    cd /home/coder/projects/gh-flow-hack
+    claude mcp add --transport http github https://api.githubcopilot.com/mcp \
+      -H "Authorization: Bearer ${data.coder_external_auth.github.access_token}"
+  EOT
 }
 
 # We are using presets to set the prompts, image, and set up instructions
@@ -90,23 +84,20 @@ data "coder_workspace_preset" "default" {
     "setup_script"    = <<-EOT
     # Set up projects dir
     mkdir -p /home/coder/projects
-    cd $HOME/projects
 
     # Packages: Install additional packages
     sudo apt-get update && sudo apt-get install -y tmux
 
-    # Repo: Clone gh-flow-hack
-    if [ ! -d "gh-flow-hack" ]; then
-      git clone https://github.com/ianeiko/gh-flow-hack.git
+    # Repo: Clone gh-flow-hack into /home/coder/projects/gh-flow-hack
+    if [ ! -d "/home/coder/projects/gh-flow-hack/.git" ]; then
+      echo "Cloning gh-flow-hack repository..."
+      git clone https://github.com/ianeiko/gh-flow-hack.git /home/coder/projects/gh-flow-hack
     else
-      cd gh-flow-hack
+      echo "Updating gh-flow-hack repository..."
+      cd /home/coder/projects/gh-flow-hack
       git fetch
       git pull
-      cd ..
     fi
-
-    # Initialize
-    cd gh-flow-hack
     EOT
     "preview_port"    = "3000"
     "container_image" = "codercom/example-universal:ubuntu"
