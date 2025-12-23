@@ -7,7 +7,7 @@ run:
 TEMPLATE_NAME ?= tasks-docker
 CONFIG_DIR ?= coder/template
 
-push:
+build:
 	set -a && . ./.env && set +a && coder templates push $(TEMPLATE_NAME) --directory $(CONFIG_DIR) --yes --var anthropic_api_key=$${ANTHROPIC_API_KEY}
 
 clean:

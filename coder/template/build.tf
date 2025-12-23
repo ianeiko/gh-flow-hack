@@ -49,6 +49,19 @@ module "claude-code" {
   model               = "sonnet"
   permission_mode     = "plan"
   post_install_script = data.coder_parameter.setup_script.value
+  mcp = <<-EOF
+  {
+    "mcpServers": {
+      "github": {
+        "url": "https://api.githubcopilot.com/mcp",
+        "type": "http",
+        "headers": {
+          "Authorization": "Bearer ${data.coder_external_auth.github.access_token}"
+        }
+      }
+    }
+  }
+  EOF
 }
 
 # We are using presets to set the prompts, image, and set up instructions
@@ -81,12 +94,6 @@ data "coder_workspace_preset" "default" {
 
     # Packages: Install additional packages
     sudo apt-get update && sudo apt-get install -y tmux
-
-    # Install GitHub MCP
-    # We use npx to run it, but we can also install it globally or add it to claude config
-    # We will try to add it to generic mcp config or rely on npx usage in prompt?
-    # Actually, adding it here makes it available in the agent
-    claude mcp add github-mcp-server npx -y @modelcontextprotocol/server-github
 
     # Repo: Clone gh-flow-hack
     if [ ! -d "gh-flow-hack" ]; then
@@ -315,7 +322,7 @@ resource "coder_app" "preview" {
   icon         = "${data.coder_workspace.me.access_url}/emojis/1f50e.png"
   url          = "http://localhost:${data.coder_parameter.preview_port.value}"
   share        = "authenticated"
-  subdomain    = true
+  subdomain    = false
   open_in      = "tab"
   order        = 0
   healthcheck {
