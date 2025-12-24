@@ -1,20 +1,48 @@
-# Utility Prompt: Create Pull Request
+# Pull Request Standards
 
-This prompt is used to create a new Pull Request on GitHub once implementation is complete.
+## Delegation
+**Use `/github` plugin for PR operations.**
 
-## Goal
-Create a Pull Request merging the current working branch into the base branch (usually `main`).
+## Our Standards
+### Branch Naming
+`feature/issue-{number}-{short-description}`
 
-## Input Variables
-- `owner`: The owner of the repository.
-- `repo`: The name of the repository.
-- `title`: The title of the Pull Request.
-- `body`: A description of the changes in the Pull Request.
-- `head`: The name of the branch containing the changes (the current branch).
-- `base`: The name of the branch to merge into (default: `main`).
+### Commit Format
+```
+feat: {description}
 
-## Instructions
-1.  **Create PR**: Use the GitHub MCP tool `create_pull_request` to open a new PR.
+{detailed description if needed}
 
-## Tool Usage
-- `github_mcp.create_pull_request(owner=owner, repo=repo, title=title, body=body, head=head, base=base)`
+Closes #{issue-number}
+```
+
+### PR Title Format
+`feat: {feature name} (#{issue-number})`
+
+### PR Body Template
+```markdown
+## Summary
+{Brief description of what was implemented}
+
+## Changes
+- {List of key changes}
+- {Files modified/created}
+
+## Related Issue
+Closes #{issue-number}
+
+## Test Plan
+{How to verify the changes work}
+
+## Additional Notes
+{Any relevant context or decisions made}
+```
+
+### PR Creation Checklist
+1. Review changes: `git status`, `git diff`
+2. Create feature branch (if not exists)
+3. Commit with proper format
+4. Push to remote
+5. Create PR via GitHub MCP tools
+6. Link PR to issue
+7. Update `workflow-state.md` with PR details

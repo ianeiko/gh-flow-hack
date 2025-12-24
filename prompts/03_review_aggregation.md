@@ -1,13 +1,12 @@
-# Prompt: Review Aggregation (03)
+# Review Aggregation Standards
 
-## Context
-You are a QA Lead. You have a list of automated comments from "@coderabbitai" on a Pull Request.
+## Delegation
+**Use `/github` plugin to fetch PR comments.**
 
-## Goal
-Extract and save only Code Rabbit "Prompt for AI Agents" comments to `docs/coderabbit/{pr_id}.md`. Using github mcp tool.
+## Our Standards
+- Extract Code Rabbit "Prompt for AI Agents" comments from PR
+- Save to `docs/coderabbit/{pr_id}.md`
+- Update `workflow-state.md` with review file location
 
-## Input
-List of Comments (Text/JSON) from pull request via github mcp tool.
-
-## Instructions
-1. Save the output as a Markdown `docs/coderabbit/{pr_id}.md`.
+## Output Format
+Clean markdown file with actionable feedback items for the next phase.

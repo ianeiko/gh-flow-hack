@@ -41,7 +41,7 @@ module "claude-code" {
   source              = "registry.coder.com/coder/claude-code/coder"
   version             = "4.2.1"
   agent_id            = coder_agent.main.id
-  workdir             = "/home/coder/projects/gh-flow-hack"
+  workdir             = "/home/coder/gh-flow-hack"
   order               = 999
   claude_api_key      = var.anthropic_api_key
   ai_prompt           = data.coder_task.me.prompt
@@ -50,11 +50,9 @@ module "claude-code" {
   permission_mode     = "plan"
   post_install_script = <<-EOT
     ${data.coder_parameter.setup_script.value}
-
-    # Configure GitHub HTTP MCP server using Claude Code CLI
-    cd /home/coder/projects/gh-flow-hack
-    claude mcp add --transport http github https://api.githubcopilot.com/mcp \
-      -H "Authorization: Bearer ${data.coder_external_auth.github.access_token}"
+    claude plugin install github
+    claude plugin install feature-dev
+    claude plugin install code-review
   EOT
 }
 
@@ -64,45 +62,15 @@ data "coder_workspace_preset" "default" {
   name    = "GH Flow Hack"
   default = true
   parameters = {
-    "system_prompt" = <<-EOT
-      -- Context --
-      You are a generalized automated agent workflow "GH Flow Hack".
-      Your goal is to execute instructions provided in local prompt files within the repository.
-
-      -- Instructions --
-      1. You are operating in the `gh-flow-hack` repository.
-      2. The Pull Request URL is available if needed: $${data.coder_parameter.pull_request_url.value}
-      3. Use the `github-mcp-server` tools when interaction with GitHub is required.
-      4. Read and follow the specific prompt instructions found in the `prompts/` directory as directed.
-
-      -- Tool Selection --
-      - Use `github-mcp-server` tools (like `get_pull_request_reviews`, `get_issue_comments`, etc.) as needed.
-      - Use file tools to read prompts and write outputs.
-
-    EOT
+    "system_prompt" = templatefile("./system_prompt.tftpl", {})
 
     "setup_script"    = <<-EOT
-    # Set up projects dir
-    mkdir -p /home/coder/projects
-
-    # Packages: Install additional packages
-    sudo apt-get update && sudo apt-get install -y tmux
-
-    # Repo: Clone gh-flow-hack into /home/coder/projects/gh-flow-hack
-    if [ ! -d "/home/coder/projects/gh-flow-hack/.git" ]; then
-      echo "Cloning gh-flow-hack repository..."
-      git clone https://github.com/ianeiko/gh-flow-hack.git /home/coder/projects/gh-flow-hack
-    else
-      echo "Updating gh-flow-hack repository..."
-      cd /home/coder/projects/gh-flow-hack
-      git fetch
-      git pull
-    fi
+    ls ~/.claude/plugins/
     EOT
     "preview_port"    = "3000"
     "container_image" = "codercom/example-universal:ubuntu"
-    "pull_request_url" = ""
   }
+}
 
 # Advanced parameters (these are all set via preset)
 data "coder_parameter" "system_prompt" {
@@ -137,21 +105,9 @@ data "coder_parameter" "preview_port" {
   mutable      = false
 }
 
-data "coder_parameter" "pull_request_url" {
-  name         = "pull_request_url"
-  display_name = "Pull Request URL"
-  description  = "The URL of the Pull Request to process (e.g. https://github.com/ianeiko/gh-flow-hack/pull/1)"
-  type         = "string"
-  default      = ""
-  mutable      = true
-}
-
 data "coder_provisioner" "me" {}
 data "coder_workspace" "me" {}
 data "coder_workspace_owner" "me" {}
-data "coder_external_auth" "github" {
-  id = "github"
-}
 
 resource "coder_agent" "main" {
   arch           = data.coder_provisioner.me.arch
@@ -176,77 +132,12 @@ resource "coder_agent" "main" {
     GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
   }
 
-  # The following metadata blocks are optional. They are used to display
-  # information about your workspace in the dashboard. You can remove them
-  # if you don't want to display any information.
-  # For basic resources, you can use the `coder stat` command.
-  # If you need more control, you can write your own script.
-  metadata {
-    display_name = "CPU Usage"
-    key          = "0_cpu_usage"
-    script       = "coder stat cpu"
-    interval     = 10
-    timeout      = 1
-  }
-
-  metadata {
-    display_name = "RAM Usage"
-    key          = "1_ram_usage"
-    script       = "coder stat mem"
-    interval     = 10
-    timeout      = 1
-  }
-
-  metadata {
-    display_name = "Home Disk"
-    key          = "3_home_disk"
-    script       = "coder stat disk --path $${HOME}"
-    interval     = 60
-    timeout      = 1
-  }
-
-  metadata {
-    display_name = "CPU Usage (Host)"
-    key          = "4_cpu_usage_host"
-    script       = "coder stat cpu --host"
-    interval     = 10
-    timeout      = 1
-  }
-
-  metadata {
-    display_name = "Memory Usage (Host)"
-    key          = "5_mem_usage_host"
-    script       = "coder stat mem --host"
-    interval     = 10
-    timeout      = 1
-  }
-
-  metadata {
-    display_name = "Load Average (Host)"
-    key          = "6_load_host"
-    # get load avg scaled by number of cores
-    script   = <<EOT
-      echo "`cat /proc/loadavg | awk '{ print $1 }'` `nproc`" | awk '{ printf "%0.2f", $1/$2 }'
-    EOT
-    interval = 60
-    timeout  = 1
-  }
-
-  metadata {
-    display_name = "Swap Usage (Host)"
-    key          = "7_swap_host"
-    script       = <<EOT
-      free -b | awk '/^Swap/ { printf("%.1f/%.1f", $3/1024.0/1024.0/1024.0, $2/1024.0/1024.0/1024.0) }'
-    EOT
-    interval     = 10
-    timeout      = 1
-  }
 }
 
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
   count  = data.coder_workspace.me.start_count
-  folder = "/home/coder/projects"
+  folder = "/home/coder"
   source = "registry.coder.com/coder/code-server/coder"
 
   settings = {
@@ -260,11 +151,22 @@ module "code-server" {
   order    = 1
 }
 
+# GITHUB CONFIG
+data "coder_external_auth" "github" {
+  id = "github"
+}
 module "git-config" {
   count    = data.coder_workspace.me.start_count
   source   = "registry.coder.com/coder/git-config/coder"
   version  = "1.0.32"
   agent_id = coder_agent.main.id
+}
+module "git-clone" {
+  count    = data.coder_workspace.me.start_count
+  source   = "registry.coder.com/coder/git-clone/coder"
+  version  = "1.2.3"
+  agent_id = coder_agent.main.id
+  url      = "https://github.com/ianeiko/gh-flow-hack/tree/orchestrator-flow"
 }
 
 resource "docker_volume" "home_volume" {

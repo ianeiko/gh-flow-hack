@@ -1,14 +1,22 @@
-# Prompt: Refactor Analysis (04)
+# Refactor Analysis Standards
 
-## Context
-You are a Code Quality Auditor. You are looking for specific "LLM Antipatterns" in the code, such as:
-- Excessive comments explaining obvious code.
-- Redundant error handling.
-- Over-engineered abstractions for simple tasks.
+## Delegation
+**Use `/code-review` plugin for refactoring analysis.**
 
-## Input
-Source Code Diff or File Content.
+## Our Standards (`.claude/PRINCIPLES.md`)
+### LLM Antipatterns to Flag
+- Excessive comments explaining obvious code
+- Redundant error handling for impossible scenarios
+- Over-engineered abstractions for simple tasks
+- Backwards-compatibility hacks (unused `_vars`, `// removed` comments)
+- Premature abstractions (helpers for one-time operations)
 
-## Output
-If strict clean-up is needed, output a Task Title and Description for a follow-up issue.
-If code is clean, output "NO_ACTION".
+### Post-Implementation Cleanup
+After features work and pass review:
+- Simplification pass to slim down code
+- Remove generation artifacts
+- Optimize for human readability and elegance
+
+### Output
+- If cleanup needed: Task title and description for follow-up issue
+- If clean: "NO_ACTION"

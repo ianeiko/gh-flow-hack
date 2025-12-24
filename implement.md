@@ -1,97 +1,104 @@
-# GitHub Issue Implementation Flow
+# Implementation & PR Workflow
 
-## Overview
-After a GitHub issue has been created and reviewed (HF-required label removed), proceed with implementation and PR creation.
+**Track progress in `workflow-state.md`**
 
-## Workflow Continuation
+## Prerequisites
+- Issue created and reviewed
+- `HF-required` label removed
+- Ready for implementation
 
-### Phase 4: Local Implementation
-**Input**: GitHub issue number and content
-**Prompt Template**: `prompts/02_implementation.md`
-**Action**:
-1. Fetch the GitHub issue details using the GitHub MCP tool
-2. Read and analyze the requirements and acceptance criteria from the issue body
-3. Explore the codebase to understand current structure and patterns
-4. Plan the implementation:
-   - Identify files to create or modify
-   - Determine necessary dependencies or utilities
-   - Consider test requirements
-5. Implement the changes locally:
-   - Write clean, efficient code following the requirements
-   - Add or update tests as needed
-   - Ensure code follows existing patterns and conventions
-6. Verify the implementation meets all acceptance criteria
-7. Test locally to ensure functionality works as expected
+---
 
-### Phase 5: Pull Request Creation
-**Input**: Completed local implementation with changes
-**Action**:
-1. Review all changed files using `git status` and `git diff`
-2. Create a new branch for the changes using `git checkout -b feature/issue-{number}-{short-description}`
-3. Stage and commit the changes locally:
-   - Use descriptive commit message referencing the issue number
-   - Format: `feat: description (fixes #{issue-number})`
-4. Push the branch to remote repository
-5. Create a pull request using the GitHub MCP tool:
-   - Set title to reference the issue: `feat: {feature name} (#{issue-number})`
-   - Set body to include:
-     - Summary of changes
-     - Reference to the issue: `Closes #{issue-number}`
-     - Test plan or verification steps
-     - Any additional context
-6. Link the PR to the original issue
-7. Report the PR URL and number
+## Phase 4: Implementation
 
-## Execution Instructions
+**Delegation**: Use `/feature-dev` plugin
 
-When implementing an issue:
-1. **Fetch** the issue using `mcp__github__issue_read` with method="get"
-2. **Analyze** the requirements and acceptance criteria
-3. **Explore** the codebase context (use Task tool with Explore agent)
-4. **Plan** the implementation approach
-5. **Implement** changes following the 02_implementation.md prompt guidelines
-6. **Test** locally to verify functionality
-7. **Commit** changes with proper commit message format
-8. **Create PR** using GitHub MCP tools (`mcp__github__create_pull_request`)
-9. **Report** the PR URL and status
+**Actions**:
+1. Fetch issue via GitHub MCP tools
+2. Create feature branch: `feature/issue-{number}-{description}`
+3. Save task description to `docs/tasks/{task-name}.md`
+4. Explore codebase for context
+5. Plan implementation (keep minimal per YAGNI)
+6. Implement following our standards
+7. Add/update tests
+8. Verify locally
+9. Update `workflow-state.md` Phase 2 checklist
 
-## Repository Context
-- **Owner**: Determine from authenticated GitHub user
-- **Repo**: `gh-flow-hack`
-- **Base Branch**: `main`
-- **Feature Branch**: `feature/issue-{number}-{description}`
+**Standards**: See `prompts/02_implementation.md`
+- Code principles: YAGNI, KISS, DRY
+- Tech blueprint: `docs/tech_implementation.md` (for Deep Agents)
+- Keep changes focused, avoid over-engineering
 
-## Commit Message Format
+---
+
+## Phase 5: Pull Request
+
+**Delegation**: Use `/github` plugin
+
+**Actions**:
+1. Review changes: `git status`, `git diff`
+2. Commit with proper format (see below)
+3. Push to remote
+4. Create PR with our template (see below)
+5. Link to issue: Include `Closes #{issue-number}`
+6. Update `workflow-state.md` Phase 3 checklist
+
+**Standards**: See `prompts/utility_create_pr.md`
+
+### Branch Format
+`feature/issue-{number}-{short-description}`
+
+### Commit Format
 ```
-feat: {short description}
+feat: {description}
 
 {detailed description if needed}
 
 Closes #{issue-number}
 ```
 
-## PR Body Template
+### PR Template
 ```markdown
 ## Summary
-{Brief description of what was implemented}
+{Brief description}
 
 ## Changes
-- {List of key changes}
+- {Key changes}
 - {Files modified/created}
 
 ## Related Issue
 Closes #{issue-number}
 
 ## Test Plan
-{How to verify the changes work}
+{Verification steps}
 
 ## Additional Notes
-{Any relevant context or decisions made}
+{Context or decisions}
 ```
 
-## Notes
-- Use GitHub MCP tools for all GitHub operations
-- Follow existing code patterns and conventions
-- Keep changes focused and minimal (avoid over-engineering)
-- Ensure all acceptance criteria are met before creating PR
-- Test thoroughly before pushing changes
+---
+
+## Phase 6: Review & Fix
+
+**After PR created, Code Rabbit reviews automatically**
+
+**Actions**:
+1. Aggregate feedback via `/github` plugin to `docs/coderabbit/{pr_id}.md` (`prompts/03_review_aggregation.md`)
+2. Analyze & apply fixes via `/code-review` plugin (`prompts/04_refactor_analysis.md`, `prompts/05_fix_application.md`)
+3. Update `workflow-state.md` Phase 4 checklist
+4. Repeat until PR approved
+
+---
+
+## Quick Reference
+
+**Files**:
+- Task: `docs/tasks/{task-name}.md`
+- Standards: `prompts/02_implementation.md`, `prompts/utility_create_pr.md`
+- Tech Blueprint: `docs/tech_implementation.md`
+- State: `workflow-state.md`
+
+**Plugins**:
+- `/feature-dev` - Implementation
+- `/github` - PR operations
+- `/code-review` - Review & fixes
