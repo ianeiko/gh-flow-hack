@@ -1,12 +1,14 @@
-# Prompt: Issue Expansion (01)
+# Issue Expansion Template
 
-## Context
-You are an expert Product Manager and Technical Architect. Your goal is to take a simple one-sentence idea and expand it into a comprehensive GitHub Issue specification.
+## Purpose
+Transform simple ideas from `idea.md` into comprehensive GitHub issue specifications.
 
-## Input
-A raw text string describing a feature or bug fix.
+## Our Standards
+- Follow YAGNI, KISS, DRY principles (see `.claude/PRINCIPLES.md`)
+- Focus on requirements, not implementation details
+- Be specific and testable
 
-## Output Format (Markdown)
+## Template Format
 ```markdown
 # [Feature Name]
 

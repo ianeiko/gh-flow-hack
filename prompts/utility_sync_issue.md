@@ -1,21 +1,21 @@
-# Utility Prompt: Sync Issue to GitHub
+# GitHub Issue Operations
 
-This prompt is used to synchronize the content of a local markdown issue file with a specific GitHub issue.
+## Delegation
+**Use `/github` plugin for all GitHub issue operations.**
 
-## Goal
-Update the body of an existing GitHub issue with the content from a local markdown file.
+## Our Standards
+### Creating Issues
+- Use expanded content from `prompts/01_issue_expansion.md` template
+- Add `HF-required` label (auto-created if doesn't exist)
+- Save issue locally to `docs/issues/issue_{number}.md`
+- Update `workflow-state.md` with issue details
 
-## Input Variables
-- `issue_path`: The absolute path to the local markdown file containing the issue content (e.g., `/Users/jneiku/code/gh-flow-hack/docs/issues/issue_123.md`).
-- `issue_number`: The number of the GitHub issue to update.
-- `owner`: The owner of the repository (e.g., `jneiku`).
-- `repo`: The name of the repository (e.g., `gh-flow-hack`).
+### Updating Issues
+- Read local file content
+- Update via GitHub MCP tools (not bash)
+- Keep local and GitHub in sync
 
-## Instructions
-1.  **Read Local File**: Read the content of the file at `issue_path`.
-2.  **Update GitHub Issue**: Use the GitHub MCP tool `update_issue` to update the issue specified by `issue_number`.
-    - Set `body` to the content read from the local file.
-
-## Tool Usage
-- `read_file(path=issue_path)`
-- `github_mcp.update_issue(owner=owner, repo=repo, issue_number=issue_number, body=file_content)`
+### Repository Context
+- Owner: From authenticated GitHub user
+- Repo: `gh-flow-hack`
+- Main branch: `main`

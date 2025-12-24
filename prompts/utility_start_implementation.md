@@ -1,17 +1,18 @@
-# Utility Prompt: Start Implementation
+# Implementation Gate Standards
 
-This prompt is used to signal the start of implementation by removing the blocking label from a GitHub issue.
+## Delegation
+**Use `/github` plugin for label management.**
 
-## Goal
-Remove the `human-feedback-required` label from a GitHub issue to indicate it is ready for implementation by an agent.
+## Our Standards
+### Label: `HF-required` (Human Feedback Required)
+- Added automatically when issue created
+- Blocks implementation until removed
+- Human reviews issue and removes label when ready
+- Agent checks for label before starting implementation
 
-## Input Variables
-- `issue_number`: The number of the GitHub issue to update.
-- `owner`: The owner of the repository.
-- `repo`: The name of the repository.
-
-## Instructions
-1.  **Remove Label**: Use the GitHub MCP tool to remove the label `HF-required` from the issue specified by `issue_number`.
-
-## Tool Usage
-- `github_mcp.remove_issue_label(owner=owner, repo=repo, issue_number=issue_number, label='HF-required')`
+### Starting Implementation
+1. Verify `HF-required` label removed
+2. Create feature branch: `feature/issue-{number}-{description}`
+3. Save task description to `docs/tasks/{task-name}.md`
+4. Update `workflow-state.md` Phase 2 checklist
+5. Begin implementation using `/feature-dev` plugin

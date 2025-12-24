@@ -37,32 +37,41 @@ cd app && python main.py
 
 ### 1. The Flow System (Core Concept)
 
-The repository implements a **10-step AI-driven development workflow** where agents transform ideas into code:
+The repository implements a **plugin-driven AI development workflow** where agents transform ideas into code using Claude Code plugins:
 
-**Key Workflow Files:**
+**Workflow State Tracking:**
+- `workflow-state.md` - **CHECK THIS FIRST** - Tracks current phase, issue, PR, and task details
 - `plan.md` - Orchestrates Phase 1-3: Idea → GitHub Issue creation
-- `implement.md` - Orchestrates Phase 4-5: Implementation → PR creation
+- `implement.md` - Orchestrates Phase 4-6: Implementation → PR → Review & Fix
 - `docs/prd.md` - Complete workflow specification
 
-**Prompt Library (`/prompts`):**
-- `01_issue_expansion.md` - Expands raw ideas into detailed GitHub issues
-- `02_implementation.md` - Guides implementation from issue requirements
-- `03_review_aggregation.md` - Aggregates Code Rabbit review comments
-- `04_refactor_analysis.md` - Analyzes code for cleanup opportunities
-- `05_fix_application.md` - Applies fixes based on review feedback
-- `utility_*.md` - Helper prompts for GitHub operations (sync issues, create PRs, etc.)
+**Standards Library (`/prompts`):**
+Our prompts define standards and delegate to plugins:
+- `01_issue_expansion.md` - Issue template format (our specific structure)
+- `02_implementation.md` - Implementation standards (delegates to `/feature-dev`)
+- `03_review_aggregation.md` - Review standards (delegates to `/code-review`)
+- `04_refactor_analysis.md` - Refactoring standards (delegates to `/code-review`)
+- `05_fix_application.md` - Fix standards (delegates to `/code-review`)
+- `utility_*.md` - GitHub operation standards (delegate to `/github`)
+
+**Claude Code Plugins (Installed):**
+- `/github` - GitHub operations (issues, PRs, labels)
+- `/feature-dev` - Feature implementation workflow
+- `/code-review` - Code review and feedback aggregation
 
 **The Complete Flow:**
 1. User writes idea in `idea.md`
-2. Agent expands idea → detailed issue spec (using prompt 01)
-3. Agent creates GitHub issue with "HF-required" label (utility prompt)
+2. Agent expands idea using template from `prompts/01_issue_expansion.md`
+3. Agent creates GitHub issue via `/github` plugin with "HF-required" label
 4. Human reviews and removes label when ready
-5. Agent implements feature in `/app` (using prompt 02 + `docs/tech_implementation.md`)
-6. Agent creates PR (utility prompt)
+5. Agent implements feature via `/feature-dev` plugin following `docs/tech_implementation.md`
+6. Agent creates PR via `/github` plugin
 7. Code Rabbit reviews PR automatically
-8. Agent aggregates feedback (prompt 03)
-9. Agent analyzes for refactoring (prompt 04)
-10. Agent applies fixes until PR merges (prompt 05)
+8. Agent aggregates feedback via `/code-review` plugin to `docs/coderabbit/{pr_id}.md`
+9. Agent analyzes for refactoring via `/code-review` plugin
+10. Agent applies fixes via `/code-review` plugin until PR merges
+
+**Always start by checking `workflow-state.md` to see current phase and context!**
 
 ### 2. Target Application Architecture (`/app`)
 
@@ -141,9 +150,13 @@ REMOTE_CODER_CALLBACK_URL=""
 
 ## Important Context
 
-1. **When implementing features in `/app`**: Always read `docs/tech_implementation.md` first - it's the architectural blueprint
-2. **When expanding issues**: Follow the template in `prompts/01_issue_expansion.md` exactly
-3. **GitHub operations**: Use GitHub MCP tools, not bash commands
-4. **Branch naming**: `feature/issue-{number}-{short-description}`
-5. **Commit format**: `feat: {description}` with `Closes #{issue-number}` in body
-6. **The "product" is the Flow**: This repo is about perfecting the AI development workflow itself, not just the target app
+1. **Always check `workflow-state.md` first** - It tracks current phase, issue, PR, and task context
+2. **Use plugins for execution** - `/github`, `/feature-dev`, `/code-review` handle mechanics
+3. **Prompts define our standards** - They specify how plugins should be used with our conventions
+4. **When implementing features in `/app`**: Read `docs/tech_implementation.md` - architectural blueprint
+5. **When expanding issues**: Use template from `prompts/01_issue_expansion.md`
+6. **GitHub operations**: Use `/github` plugin (delegates to GitHub MCP tools)
+7. **Branch naming**: `feature/issue-{number}-{short-description}`
+8. **Commit format**: `feat: {description}` with `Closes #{issue-number}` in body
+9. **Update workflow-state.md** - Check off items as you progress through phases
+10. **The "product" is the Flow** - This repo perfects the AI development workflow itself
