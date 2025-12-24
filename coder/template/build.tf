@@ -10,9 +10,9 @@ terraform {
   }
 }
 
-variable "anthropic_api_key" {
+variable "claude_code_oauth_token" {
   type        = string
-  description = "Anthropic API Key"
+  description = "OAuth token from 'claude setup-token' command"
   sensitive   = true
 }
 
@@ -43,7 +43,6 @@ module "claude-code" {
   agent_id            = coder_agent.main.id
   workdir             = "/home/coder/gh-flow-hack"
   order               = 999
-  claude_api_key      = var.anthropic_api_key
   ai_prompt           = data.coder_task.me.prompt
   system_prompt       = data.coder_parameter.system_prompt.value
   model               = "sonnet"
@@ -126,10 +125,11 @@ resource "coder_agent" "main" {
   # You can remove this block if you'd prefer to configure Git manually or using
   # dotfiles. (see docs/dotfiles.md)
   env = {
-    GIT_AUTHOR_NAME     = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_AUTHOR_EMAIL    = "${data.coder_workspace_owner.me.email}"
-    GIT_COMMITTER_NAME  = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
-    GIT_COMMITTER_EMAIL = "${data.coder_workspace_owner.me.email}"
+    GIT_AUTHOR_NAME          = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
+    GIT_AUTHOR_EMAIL         = "${data.coder_workspace_owner.me.email}"
+    GIT_COMMITTER_NAME       = coalesce(data.coder_workspace_owner.me.full_name, data.coder_workspace_owner.me.name)
+    GIT_COMMITTER_EMAIL      = "${data.coder_workspace_owner.me.email}"
+    CLAUDE_CODE_OAUTH_TOKEN  = var.claude_code_oauth_token
   }
 
 }
