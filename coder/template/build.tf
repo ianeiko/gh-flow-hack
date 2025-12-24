@@ -41,7 +41,7 @@ module "claude-code" {
   source              = "registry.coder.com/coder/claude-code/coder"
   version             = "4.2.1"
   agent_id            = coder_agent.main.id
-  workdir             = "/home/coder/projects/gh-flow-hack"
+  workdir             = "/home/coder/gh-flow-hack"
   order               = 999
   claude_api_key      = var.anthropic_api_key
   ai_prompt           = data.coder_task.me.prompt
@@ -50,7 +50,7 @@ module "claude-code" {
   permission_mode     = "plan"
   post_install_script = <<-EOT
     ${data.coder_parameter.setup_script.value}
-    cd /home/coder/projects/gh-flow-hack
+    cd /home/coder/gh-flow-hack
     mkdir -p ~/.claude/plugins
     cp -r ./plugins/gh-flow-orchestrator ~/.claude/plugins/
   EOT
@@ -65,22 +65,7 @@ data "coder_workspace_preset" "default" {
     "system_prompt" = templatefile("./system_prompt.tftpl", {})
 
     "setup_script"    = <<-EOT
-    # Set up projects dir
-    mkdir -p /home/coder/projects
-
-    # Packages: Install additional packages
-    sudo apt-get update && sudo apt-get install -y tmux
-
-    # Repo: Clone gh-flow-hack into /home/coder/projects/gh-flow-hack
-    if [ ! -d "/home/coder/projects/gh-flow-hack/.git" ]; then
-      echo "Cloning gh-flow-hack repository..."
-      git clone https://github.com/ianeiko/gh-flow-hack.git /home/coder/projects/gh-flow-hack
-    else
-      echo "Updating gh-flow-hack repository..."
-      cd /home/coder/projects/gh-flow-hack
-      git fetch
-      git pull
-    fi
+    ls ~/.claude/plugins/
     EOT
     "preview_port"    = "3000"
     "container_image" = "codercom/example-universal:ubuntu"
@@ -152,7 +137,7 @@ resource "coder_agent" "main" {
 # See https://registry.coder.com/modules/coder/code-server
 module "code-server" {
   count  = data.coder_workspace.me.start_count
-  folder = "/home/coder/projects"
+  folder = "/home/coder"
   source = "registry.coder.com/coder/code-server/coder"
 
   settings = {

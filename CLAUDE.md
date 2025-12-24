@@ -123,7 +123,7 @@ The Terraform configuration (`coder/template/build.tf`) sets up:
 - Docker-based workspaces with Claude Code agent
 - `coder_ai_task` resource for task execution
 - Claude Code module with configurable system prompts and model selection
-- Working directory: `/home/coder/projects/gh-flow-hack`
+- Working directory: `/home/coder/gh-flow-hack`
 - Permission mode: `plan` (requires approval before execution)
 
 ## Development Principles (`.claude/PRINCIPLES.md`)
