@@ -17,21 +17,15 @@
 
 ## Installation
 
-Install the local plugin:
+Install official Claude Code plugins:
 
 ```bash
-# Copy plugin to user plugins directory
-mkdir -p ~/.claude/plugins
-cp -r ./plugins/gh-flow-orchestrator ~/.claude/plugins/
-
-# Restart Claude Code to load the plugin
+claude plugin install github
+claude plugin install feature-dev
+claude plugin install code-review
 ```
 
-Or use it directly in this project (no installation needed):
-```bash
-# Claude Code automatically loads plugins from ./.claude/plugins/
-# or ./plugins/ in project directory
-```
+The custom commands and skills are automatically loaded from the project directory.
 
 ## Usage
 
@@ -44,7 +38,7 @@ Or use it directly in this project (no installation needed):
 
 2. **Run the command**:
    ```
-   /gh-flow-orchestrator:idea-to-pr --auto-implement
+   /idea-to-pr --auto-implement
    ```
 
 3. **Done!** The flow will:
@@ -59,14 +53,14 @@ Or use it directly in this project (no installation needed):
 
 2. **Create issue for review**:
    ```
-   /gh-flow-orchestrator:idea-to-pr
+   /idea-to-pr
    ```
 
 3. **Review issue on GitHub**, remove `HF-required` label when ready
 
 4. **Implement**:
    ```
-   /gh-flow-orchestrator:check-and-implement
+   /check-and-implement
    ```
 
 ### Option 3: Manual Step-by-Step (Full Control)
@@ -77,11 +71,12 @@ Follow the workflow docs:
 
 ## Commands Reference
 
-| Command | Purpose | Auto-Implement |
-|---------|---------|----------------|
-| `/gh-flow-orchestrator:idea-to-pr` | Idea → Issue (with review gate) | No |
-| `/gh-flow-orchestrator:idea-to-pr --auto-implement` | Idea → Issue → Implementation → PR | Yes |
-| `/gh-flow-orchestrator:check-and-implement` | Find eligible issue → Implement | Yes |
+### Workflow Skills
+| Command                        | Purpose                            | Auto-Implement |
+| ------------------------------ | ---------------------------------- | -------------- |
+| `/idea-to-pr`                  | Idea → Issue (with review gate)    | No             |
+| `/idea-to-pr --auto-implement` | Idea → Issue → Implementation → PR | Yes            |
+| `/check-and-implement`         | Find eligible issue → Implement    | Yes            |
 
 ## Workflow State
 
@@ -99,15 +94,19 @@ Follow the workflow docs:
 - **Reviews**: `docs/coderabbit/{pr_id}.md` (Code Rabbit feedback)
 - **State**: `workflow-state.md` (current progress)
 
-## Plugins Used
+## Architecture
 
-The installed Claude Code plugins:
-- `/github` - GitHub operations (issues, PRs, labels, comments)
-- `/feature-dev` - Feature implementation
-- `/code-review` - Review analysis and fixes
+### Official Plugins
+- `github` - GitHub operations (issues, PRs, labels, comments)
+- `feature-dev` - Feature implementation workflow
+- `code-review` - Code review and feedback aggregation
 
-Our local plugin:
-- `/gh-flow-orchestrator` - Workflow automation
+### Skills (Managed)
+- `idea-to-pr` - Idea → Issue → (optionally) PR
+- `check-and-implement` - Find eligible issue → Implement
+
+### Custom Commands
+Located in `.claude/commands/g/` - loaded automatically
 
 ## Standards & Conventions
 
@@ -131,7 +130,7 @@ Our principles:
 echo "Add a function to calculate factorial" > idea.md
 
 # Run:
-/gh-flow-orchestrator:idea-to-pr --auto-implement
+/idea-to-pr --auto-implement
 
 # Result: PR created with implementation
 ```
@@ -142,26 +141,28 @@ echo "Add a function to calculate factorial" > idea.md
 echo "Add user authentication with JWT tokens" > idea.md
 
 # Create issue for review:
-/gh-flow-orchestrator:idea-to-pr
+/idea-to-pr
 
 # Review on GitHub, remove HF-required label
 
 # Implement:
-/gh-flow-orchestrator:check-and-implement
+/check-and-implement
 
 # Result: PR created, Code Rabbit reviews, agent fixes issues
 ```
 
 ## Troubleshooting
 
-### Plugin not found
+### Plugins not found
 ```bash
-# Check if plugin is installed:
-ls ~/.claude/plugins/gh-flow-orchestrator
-
-# If not, install it:
-cp -r ./plugins/gh-flow-orchestrator ~/.claude/plugins/
+# Install official plugins:
+claude plugin install github
+claude plugin install feature-dev
+claude plugin install code-review
 ```
+
+### Skills not found
+Skills are managed in `.claude/skills/` - they should be automatically loaded from the project.
 
 ### GitHub MCP not working
 ```bash
@@ -172,12 +173,13 @@ echo $GITHUB_TOKEN
 ```
 
 ### Command doesn't run
-- Use exact command: `/gh-flow-orchestrator:idea-to-pr`
-- Note the colon `:` between plugin name and command
+- Skills use slash prefix: `/idea-to-pr`
+- Custom commands use namespace: `/g:issue`
+- Plugin tools invoked by skills automatically
 
 ## Next Steps
 
 1. Try the quick example above
 2. Read `CLAUDE.md` for full architecture
-3. Check `docs/PLUGIN_MIGRATION.md` for how plugins are used
+3. Check `docs/PLUGIN_MIGRATION.md` for plugin migration details
 4. Review `docs/tech_implementation.md` for Deep Agents patterns
