@@ -104,18 +104,6 @@ data "coder_workspace_preset" "default" {
     "pull_request_url" = ""
   }
 
-  # Pre-builds is a Coder Premium
-  # feature to speed up workspace creation
-  #
-  # see https://coder.com/docs/admin/templates/extending-templates/prebuilt-workspaces
-  # prebuilds {
-  #   instances = 1
-  #   expiration_policy {
-  #      ttl = 86400  # Time (in seconds) after which unclaimed prebuilds are expired (1 day)
-  #  }
-  # }
-}
-
 # Advanced parameters (these are all set via preset)
 data "coder_parameter" "system_prompt" {
   name         = "system_prompt"
