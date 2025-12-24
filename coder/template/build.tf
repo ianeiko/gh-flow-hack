@@ -50,9 +50,9 @@ module "claude-code" {
   permission_mode     = "plan"
   post_install_script = <<-EOT
     ${data.coder_parameter.setup_script.value}
-    cd /home/coder/gh-flow-hack
-    mkdir -p ~/.claude/plugins
-    cp -r ./plugins/gh-flow-orchestrator ~/.claude/plugins/
+    claude plugin install github
+    claude plugin install feature-dev
+    claude plugin install code-review
   EOT
 }
 
