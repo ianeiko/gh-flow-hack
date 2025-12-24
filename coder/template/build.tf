@@ -43,16 +43,10 @@ module "claude-code" {
   agent_id            = coder_agent.main.id
   workdir             = "/home/coder/gh-flow-hack"
   order               = 999
-  ai_prompt           = data.coder_task.me.prompt
-  system_prompt       = data.coder_parameter.system_prompt.value
-  model               = "sonnet"
-  permission_mode     = "plan"
-  post_install_script = <<-EOT
-    ${data.coder_parameter.setup_script.value}
-    claude plugin install github
-    claude plugin install feature-dev
-    claude plugin install code-review
-  EOT
+  ai_prompt       = data.coder_task.me.prompt
+  system_prompt   = data.coder_parameter.system_prompt.value
+  model           = "sonnet"
+  permission_mode = "plan"
 }
 
 # We are using presets to set the prompts, image, and set up instructions
@@ -61,10 +55,21 @@ data "coder_workspace_preset" "default" {
   name    = "GH Flow Hack"
   default = true
   parameters = {
-    "system_prompt" = templatefile("./system_prompt.tftpl", {})
+    "system_prompt"   = templatefile("./system_prompt.tftpl", {})
 
-    "setup_script"    = <<-EOT
-    ls ~/.claude/plugins/
+    "setup_script" = <<-EOT
+
+      # Install Claude Code plugins before Claude Code module starts
+      # This ensures plugins are available when Claude Code initializes
+      if ! claude plugin list | grep -q "github"; then
+        claude plugin install github
+      fi
+      if ! claude plugin list | grep -q "feature-dev"; then
+        claude plugin install feature-dev
+      fi
+      if ! claude plugin list | grep -q "code-review"; then
+        claude plugin install code-review
+      fi
     EOT
     "preview_port"    = "3000"
     "container_image" = "codercom/example-universal:ubuntu"
