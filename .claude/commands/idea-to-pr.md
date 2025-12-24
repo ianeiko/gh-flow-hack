@@ -61,10 +61,10 @@ Created GitHub issue for implementation:
 Next steps:
 1. Review the issue on GitHub
 2. Remove "HF-required" label when ready to implement
-3. Run /gh-flow-orchestrator:check-and-implement to start implementation
+3. Run /check-and-implement to start implementation
 
 Or to auto-implement without review, run:
-/gh-flow-orchestrator:idea-to-pr --auto-implement
+/idea-to-pr --auto-implement
 ```
 
 ## Step 5: Optional Auto-Implementation
@@ -112,13 +112,13 @@ You have succeeded when:
 
 ### Manual Review (Default)
 ```
-/gh-flow-orchestrator:idea-to-pr
+/idea-to-pr
 ```
 Creates issue with HF-required label, waits for human review.
 
 ### Auto-Implement (No Review)
 ```
-/gh-flow-orchestrator:idea-to-pr --auto-implement
+/idea-to-pr --auto-implement
 ```
 Creates issue and immediately implements without human review.
 

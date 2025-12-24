@@ -10,12 +10,12 @@
 ## Quick Commands
 
 **Start from idea:**
-- `idea.md` (write your idea) → `/gh-flow-orchestrator:idea-to-pr --auto-implement`
+- `idea.md` (write your idea) → `/idea-to-pr --auto-implement`
 
 **Or step by step:**
-1. `idea.md` → `/gh-flow-orchestrator:idea-to-pr` (creates issue)
+1. `idea.md` → `/idea-to-pr` (creates issue)
 2. Review on GitHub, remove `HF-required` label
-3. `/gh-flow-orchestrator:check-and-implement` (implements)
+3. `/check-and-implement` (implements)
 
 ---
 

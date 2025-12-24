@@ -12,22 +12,20 @@ This is an **AI-Driven Development Flow** system (a "Software Factory") that orc
 
 ## Quick Start
 
-**See `QUICKSTART.md` for installation and usage.**
-
-**TL;DR**: Write idea → Run `/gh-flow-orchestrator:idea-to-pr` → Get PR
+**TL;DR**: Write idea in `idea.md` → Run `/idea-to-pr --auto-implement` → Get PR
 
 ## Common Commands
 
 ### Workflow Orchestration
 ```bash
 # Idea → Issue → Implementation → PR (auto)
-/gh-flow-orchestrator:idea-to-pr --auto-implement
+/idea-to-pr --auto-implement
 
 # Idea → Issue (with human review)
-/gh-flow-orchestrator:idea-to-pr
+/idea-to-pr
 
 # Find eligible issue → Implement
-/gh-flow-orchestrator:check-and-implement
+/check-and-implement
 ```
 
 ### Development Environment

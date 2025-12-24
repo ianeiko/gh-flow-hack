@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Execute the /gh-flow-orchestrator:check-and-implement command to find and implement eligible GitHub issues."
+            "prompt": "Execute the /check-and-implement command to find and implement eligible GitHub issues."
           }
         ]
       }
