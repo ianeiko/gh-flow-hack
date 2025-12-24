@@ -166,7 +166,7 @@ module "git-clone" {
   source   = "registry.coder.com/coder/git-clone/coder"
   version  = "1.2.3"
   agent_id = coder_agent.main.id
-  url      = "https://github.com/ianeiko/gh-flow-hack/tree/orchestrator-flow"
+  url      = "https://github.com/ianeiko/gh-flow-hack"
 }
 
 resource "docker_volume" "home_volume" {

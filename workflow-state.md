@@ -1,6 +1,6 @@
 # Workflow State Tracker
 
-**Current Branch:** orchestrator-flow
+**Current Branch:** N/A
 **Current Task File:** N/A
 **Current Issue:** N/A
 **Current PR:** N/A
