@@ -10,7 +10,25 @@ This is an **AI-Driven Development Flow** system (a "Software Factory") that orc
 2. **The Target Application**: A LangChain/LangGraph Deep Agent being built in `/app` using the [`langchain-ai/deepagents`](https://github.com/langchain-ai/deepagents) template
 3. **Coder Integration**: Terraform configuration for running Claude Code as an AI agent within Coder workspaces
 
+## Quick Start
+
+**See `QUICKSTART.md` for installation and usage.**
+
+**TL;DR**: Write idea → Run `/gh-flow-orchestrator:idea-to-pr` → Get PR
+
 ## Common Commands
+
+### Workflow Orchestration
+```bash
+# Idea → Issue → Implementation → PR (auto)
+/gh-flow-orchestrator:idea-to-pr --auto-implement
+
+# Idea → Issue (with human review)
+/gh-flow-orchestrator:idea-to-pr
+
+# Find eligible issue → Implement
+/gh-flow-orchestrator:check-and-implement
+```
 
 ### Development Environment
 ```bash
