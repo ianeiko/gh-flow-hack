@@ -67,9 +67,8 @@ Our prompts define standards and delegate to plugins:
 5. Agent implements feature via `/feature-dev` plugin following `docs/tech_implementation.md`
 6. Agent creates PR via `/github` plugin
 7. Code Rabbit reviews PR automatically
-8. Agent aggregates feedback via `/code-review` plugin to `docs/coderabbit/{pr_id}.md`
-9. Agent analyzes for refactoring via `/code-review` plugin
-10. Agent applies fixes via `/code-review` plugin until PR merges
+8. Agent aggregates feedback via `/github` plugin to `docs/coderabbit/{pr_id}.md`
+9. Agent analyzes & applies fixes via `/code-review` plugin until PR merges
 
 **Always start by checking `workflow-state.md` to see current phase and context!**
 

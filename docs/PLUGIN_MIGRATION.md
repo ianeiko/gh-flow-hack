@@ -9,9 +9,9 @@ Refactored the workflow to leverage installed Claude Code plugins instead of dup
 
 ## Installed Plugins
 
-1. **`/github`** - GitHub operations (issues, PRs, labels)
+1. **`/github`** - GitHub operations (issues, PRs, labels, comments)
 2. **`/feature-dev`** - Feature development workflow
-3. **`/code-review`** - Code review and feedback aggregation
+3. **`/code-review`** - Code review analysis and fixes
 
 ## New Architecture
 
@@ -32,7 +32,7 @@ Prompts contained detailed instructions on how to perform each step (e.g., "use 
 
 #### Workflow Orchestration
 - `plan.md` - Now references `/github` plugin for issue creation
-- `implement.md` - Now references `/feature-dev` and `/code-review` plugins
+- `implement.md` - Now references `/feature-dev`, `/github`, and `/code-review` plugins
 - `CLAUDE.md` - Updated to reflect plugin-based architecture
 
 #### Standards Library (`/prompts`)
@@ -42,7 +42,7 @@ All prompts refactored to "standards + delegation" pattern:
 |--------|----------|----------|--------------|
 | `01_issue_expansion.md` | Issue expansion guide | Template format (our specific structure) | N/A (template only) |
 | `02_implementation.md` | Implementation instructions | Implementation standards | `/feature-dev` |
-| `03_review_aggregation.md` | Review aggregation steps | Review aggregation standards | `/code-review` |
+| `03_review_aggregation.md` | Review aggregation steps | Review aggregation standards | `/github` (fetch comments) |
 | `04_refactor_analysis.md` | Refactoring guide | Refactoring standards | `/code-review` |
 | `05_fix_application.md` | Fix instructions | Fix standards | `/code-review` |
 | `utility_sync_issue.md` | Issue sync steps | GitHub issue standards | `/github` |
@@ -80,13 +80,30 @@ All prompts refactored to "standards + delegation" pattern:
 2. Follow `implement.md` workflow:
    - Implement via `/feature-dev` plugin
    - Create PR via `/github` plugin
-   - Handle review via `/code-review` plugin
+   - Aggregate review via `/github` plugin (fetch comments)
+   - Analyze & fix via `/code-review` plugin
    - Update `workflow-state.md` throughout
 
 ### Key Commands
-- `/github` - All GitHub operations
+- `/github` - All GitHub operations (issues, PRs, labels, comments)
 - `/feature-dev` - Feature implementation
-- `/code-review` - Review aggregation and fixes
+- `/code-review` - Review analysis and fixes
+
+## Plugin Responsibilities
+
+### `/github`
+- Create/update issues
+- Manage labels
+- Create PRs
+- Fetch PR comments for review aggregation
+
+### `/feature-dev`
+- Implement features following issue requirements
+- Follow our tech blueprint and principles
+
+### `/code-review`
+- Analyze code for refactoring opportunities
+- Apply fixes from review feedback
 
 ## Benefits
 

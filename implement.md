@@ -82,14 +82,11 @@ Closes #{issue-number}
 
 **After PR created, Code Rabbit reviews automatically**
 
-**Delegation**: Use `/code-review` plugin
-
 **Actions**:
-1. Aggregate feedback to `docs/coderabbit/{pr_id}.md` (`prompts/03_review_aggregation.md`)
-2. Analyze for refactoring needs (`prompts/04_refactor_analysis.md`)
-3. Apply fixes (`prompts/05_fix_application.md`)
-4. Update `workflow-state.md` Phase 4 checklist
-5. Repeat until PR approved
+1. Aggregate feedback via `/github` plugin to `docs/coderabbit/{pr_id}.md` (`prompts/03_review_aggregation.md`)
+2. Analyze & apply fixes via `/code-review` plugin (`prompts/04_refactor_analysis.md`, `prompts/05_fix_application.md`)
+3. Update `workflow-state.md` Phase 4 checklist
+4. Repeat until PR approved
 
 ---
 
