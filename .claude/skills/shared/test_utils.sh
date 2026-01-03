@@ -18,6 +18,9 @@ REPO_OWNER=$(gh api user -q .login 2>/dev/null || echo "unknown")
 REPO_NAME=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)" || echo "gh-flow-hack")
 REPO_FULL="${REPO_OWNER}/${REPO_NAME}"
 
+# Capture starting branch
+START_BRANCH=$(git branch --show-current)
+
 # Test artifact tracking (for cleanup)
 declare -a TEST_BRANCHES=()
 declare -a TEST_ISSUES=()
@@ -48,7 +51,8 @@ create_test_branch() {
     local timestamp=$(date +%s)
     local branch_name="test/${base_name}-${timestamp}"
 
-    git checkout -b "$branch_name" main 2>/dev/null || git checkout -b "$branch_name"
+    # Create from current branch (START_BRANCH) instead of main. Suppress output.
+    git checkout -b "$branch_name" "$START_BRANCH" >/dev/null 2>&1 || git checkout -b "$branch_name" >/dev/null 2>&1
     TEST_BRANCHES+=("$branch_name")
     echo "$branch_name"
 }
@@ -75,8 +79,12 @@ cleanup_test_artifacts() {
     echo "Cleaning up test artifacts"
     echo "-------------------------------------------------------------------"
 
-    # Switch to main before cleanup
-    git checkout main 2>/dev/null || true
+    # Switch back to start branch before cleanup
+    if [ -n "$START_BRANCH" ]; then
+        git checkout "$START_BRANCH" >/dev/null 2>&1 || true
+    else
+        git checkout main >/dev/null 2>&1 || true
+    fi
 
     # Close test PRs
     for pr in "${TEST_PRS[@]}"; do
