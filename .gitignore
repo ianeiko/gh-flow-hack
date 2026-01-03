@@ -64,6 +64,9 @@ pnpm-debug.log*
 tmp/
 temp/
 
+# Workflow State (ephemeral)
+.claude/workflow-state/
+
 # Teraform
 .terraform/
 *.tfstate

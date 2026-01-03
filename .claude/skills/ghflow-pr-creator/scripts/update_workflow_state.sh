@@ -1,1 +1,1 @@
-/Users/jneiku/code/gh-flow-hack/.claude/skills/shared/scripts/update_workflow_state.sh
+../../shared/scripts/update_workflow_state.sh
