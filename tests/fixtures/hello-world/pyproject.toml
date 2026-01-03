@@ -1,0 +1,9 @@
+[project]
+name = "hello-world"
+version = "0.1.0"
+description = "Simple hello world for testing"
+requires-python = ">=3.8"
+
+[tool.pytest.ini_options]
+testpaths = ["."]
+python_files = ["test_*.py"]

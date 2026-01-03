@@ -1,0 +1,1 @@
+../../shared/scripts/update_workflow_state.sh
