@@ -105,7 +105,12 @@ else
 
     # Note: create_pr.sh typically takes args like: issue_num, title, body, base_branch
     # Assuming base is main or default.
-    PR_NUMBER=$(bash "$SCRIPT" "$ISSUE_NUMBER" "$PR_TITLE" "$PR_BODY" "main")
+    # The script outputs "number|url" on the last line
+    PR_OUTPUT=$(bash "$SCRIPT" "$ISSUE_NUMBER" "$PR_TITLE" "$PR_BODY" "main")
+    # Get last line
+    LAST_LINE=$(echo "$PR_OUTPUT" | tail -n 1)
+    # Extract number (text before |)
+    PR_NUMBER=$(echo "$LAST_LINE" | cut -d'|' -f1)
 
     if [ -n "$PR_NUMBER" ]; then
         TEST_PRS+=("$PR_NUMBER")
