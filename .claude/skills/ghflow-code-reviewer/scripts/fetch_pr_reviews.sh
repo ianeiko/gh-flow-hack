@@ -13,7 +13,7 @@ if [ -z "$PR_NUMBER" ]; then
 fi
 
 # Get repository info
-REPO_INFO=$(git config --get remote.origin.url | sed -E 's|.*[:/]([^/]+)/([^/]+)(\.git)?$|\1/\2|')
+REPO_INFO=$(gh repo view --json owner,name -q ".owner.login + \"/\" + .name")
 
 echo "Fetching reviews for PR #${PR_NUMBER}..."
 
