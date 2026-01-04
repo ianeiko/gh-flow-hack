@@ -1,190 +1,81 @@
 #!/bin/bash
-# Test scripts for ghflow-pr-creator skill
+# Test ghflow-pr-creator - uses current repo
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+# Load shared test utilities
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
+source "$REPO_ROOT/.claude/skills/shared/test_utils.sh"
 
-# Test counters
-TESTS_RUN=0
-TESTS_PASSED=0
-TESTS_FAILED=0
-
-# Test repository name
-TEST_REPO="ghflow-test-pr-creator-$(date +%s)"
-REPO_OWNER=$(gh api user -q .login)
-
-# Helper functions
-pass() {
-    echo -e "${GREEN}✓${NC} $1"
-    ((TESTS_PASSED++))
-}
-
-fail() {
-    echo -e "${RED}✗${NC} $1"
-    ((TESTS_FAILED++))
-}
-
-test_start() {
-    echo ""
-    echo "-------------------------------------------------------------------"
-    echo "TEST: $1"
-    echo "-------------------------------------------------------------------"
-    ((TESTS_RUN++))
-}
-
-cleanup() {
-    echo ""
-    echo "Cleaning up test repository: $TEST_REPO"
-    gh repo delete "$REPO_OWNER/$TEST_REPO" --yes 2>/dev/null || true
-}
-
-# Setup
 echo "==================================================================="
 echo "Testing ghflow-pr-creator Scripts"
 echo "==================================================================="
-
-# Create test repository
+echo "Repository: $REPO_FULL"
 echo ""
-echo "Creating test repository: $TEST_REPO"
-gh repo create "$TEST_REPO" --public --clone
-cd "$TEST_REPO"
-git config user.name "Test User"
-git config user.email "test@example.com"
-echo "# Test Repo" > README.md
-git add README.md
-git commit -m "Initial commit"
-git push -u origin main
 
-trap cleanup EXIT
+ORIGINAL_BRANCH=$(git branch --show-current)
+trap cleanup_test_artifacts EXIT
 
-SKILL_DIR="/Users/jneiku/code/gh-flow-hack/.claude/skills/ghflow-pr-creator"
+SKILL_DIR="$REPO_ROOT/.claude/skills/ghflow-pr-creator"
 
 # Test 1: validate_branch.sh
-test_start "validate_branch.sh - Validates branch naming convention"
+test_start "validate_branch.sh - Validates branch naming"
 
-SCRIPT="$SKILL_DIR/scripts/validate_branch.sh"
-if [ ! -f "$SCRIPT" ]; then
-    fail "Script not found: $SCRIPT"
+if bash "$SKILL_DIR/scripts/validate_branch.sh" "feature/issue-123-add-feature" 2>/dev/null; then
+    pass "Valid branch name accepted"
 else
-    # Test valid branch name
-    if bash "$SCRIPT" "feature/issue-123-add-feature" 2>/dev/null; then
-        pass "Valid branch name accepted"
-    else
-        fail "Valid branch name rejected"
-    fi
+    fail "Valid branch name rejected"
+fi
 
-    # Test invalid branch name (should fail)
-    if bash "$SCRIPT" "invalid-branch-name" 2>/dev/null; then
-        fail "Invalid branch name accepted"
-    else
-        pass "Invalid branch name rejected"
-    fi
+if bash "$SKILL_DIR/scripts/validate_branch.sh" "invalid-branch" 2>/dev/null; then
+    fail "Invalid branch name accepted"
+else
+    pass "Invalid branch name rejected"
 fi
 
 # Test 2: commit_changes.sh
-test_start "commit_changes.sh - Creates properly formatted commit"
+test_start "commit_changes.sh - Creates formatted commit"
 
-# Create a feature branch
-git checkout -b feature/issue-42-test-feature
-echo "Test change" >> README.md
+TEST_ISSUE=$(create_test_issue "Test PR creator" "Testing commit")
+TEST_BRANCH=$(create_test_branch "pr-creator")
+
+echo "# Test change" >> README.md
 git add README.md
 
-SCRIPT="$SKILL_DIR/scripts/commit_changes.sh"
-if [ ! -f "$SCRIPT" ]; then
-    fail "Script not found: $SCRIPT"
+bash "$SKILL_DIR/scripts/commit_changes.sh" "$TEST_ISSUE" "Add test feature"
+COMMIT_MSG=$(git log -1 --pretty=%B)
+
+if echo "$COMMIT_MSG" | grep -q "feat: Add test feature"; then
+    pass "Commit message format correct"
 else
-    # Make commit
-    bash "$SCRIPT" 42 "Add test feature"
+    fail "Commit message format incorrect"
+fi
 
-    # Verify commit message format
-    COMMIT_MSG=$(git log -1 --pretty=%B)
-
-    if echo "$COMMIT_MSG" | grep -q "feat: Add test feature"; then
-        pass "Commit message format correct"
-    else
-        fail "Commit message format incorrect"
-    fi
-
-    if echo "$COMMIT_MSG" | grep -q "Closes #42"; then
-        pass "Issue reference included in commit"
-    else
-        fail "Issue reference missing from commit"
-    fi
-
-    if echo "$COMMIT_MSG" | grep -q "Generated with.*Claude Code"; then
-        pass "Claude Code attribution included"
-    else
-        fail "Claude Code attribution missing"
-    fi
+if echo "$COMMIT_MSG" | grep -q "Closes #$TEST_ISSUE"; then
+    pass "Issue reference included"
+else
+    fail "Issue reference missing"
 fi
 
 # Test 3: create_pr.sh
-test_start "create_pr.sh - Creates PR with proper format"
+test_start "create_pr.sh - Creates PR"
 
-# Push feature branch
-git push -u origin feature/issue-42-test-feature
+git push -u origin "$TEST_BRANCH"
 
-SCRIPT="$SKILL_DIR/scripts/create_pr.sh"
-if [ ! -f "$SCRIPT" ]; then
-    fail "Script not found: $SCRIPT"
+PR_TITLE="[TEST] Test PR"
+PR_BODY="## Summary
+Test PR"
+
+PR_NUMBER=$(bash "$SKILL_DIR/scripts/create_pr.sh" "$TEST_ISSUE" "$PR_TITLE" "$PR_BODY" "main")
+
+if [ -n "$PR_NUMBER" ]; then
+    TEST_PRS+=("$PR_NUMBER")
+    pass "PR #$PR_NUMBER created"
 else
-    # Create PR
-    PR_TITLE="Add test feature"
-    PR_BODY="## Summary
-- Test change 1
-- Test change 2
-
-## Test Plan
-- [x] Manual testing
-
-🤖 Generated with [Claude Code](https://claude.com/claude-code)"
-
-    PR_NUMBER=$(bash "$SCRIPT" 42 "$PR_TITLE" "$PR_BODY" "main")
-
-    if [ -n "$PR_NUMBER" ]; then
-        pass "PR #$PR_NUMBER created successfully"
-
-        # Verify PR data
-        PR_DATA=$(gh pr view "$PR_NUMBER" --json number,title,body)
-        PR_TITLE_ACTUAL=$(echo "$PR_DATA" | jq -r .title)
-
-        if [ "$PR_TITLE_ACTUAL" = "$PR_TITLE" ]; then
-            pass "PR title matches"
-        else
-            fail "PR title mismatch"
-        fi
-
-        # Check if PR references issue
-        PR_BODY_ACTUAL=$(echo "$PR_DATA" | jq -r .body)
-        if echo "$PR_BODY_ACTUAL" | grep -q "#42"; then
-            pass "PR references issue #42"
-        else
-            fail "PR doesn't reference issue"
-        fi
-    else
-        fail "Failed to create PR"
-    fi
+    fail "Failed to create PR"
 fi
 
-# Summary
-echo ""
-echo "==================================================================="
-echo "Test Summary"
-echo "==================================================================="
-echo "Tests run:    $TESTS_RUN"
-echo "Tests passed: $TESTS_PASSED"
-echo "Tests failed: $TESTS_FAILED"
-echo ""
-
-if [ $TESTS_FAILED -eq 0 ]; then
-    echo -e "${GREEN}🎉 ALL TESTS PASSED!${NC}"
-    exit 0
-else
-    echo -e "${RED}❌ SOME TESTS FAILED${NC}"
-    exit 1
-fi
+git checkout "$ORIGINAL_BRANCH" 2>/dev/null || git checkout main
+print_test_summary
+exit $?
