@@ -46,32 +46,26 @@ else
 fi
 
 # Test 2: save_issue.sh
-test_start "save_issue.sh - Saves issue data"
+test_start "save_issue.sh - Saves issue content to docs/issues/"
 
-BACKUP_STATE=""
-if [ -f "$REPO_ROOT/.claude/workflow-state.md" ]; then
-    BACKUP_STATE=$(cat "$REPO_ROOT/.claude/workflow-state.md")
-fi
+mkdir -p "$REPO_ROOT/docs/issues"
 
-cat > "$REPO_ROOT/.claude/workflow-state.md" <<STATEOF
-# Workflow State
+# Create temp content file
+TEMP_CONTENT=$(mktemp)
+echo "# Test Issue Content" > "$TEMP_CONTENT"
+echo "Test body" >> "$TEMP_CONTENT"
 
-## Current Issue
-Number:
-Title:
-STATEOF
+bash "$SKILL_DIR/scripts/save_issue.sh" "$ISSUE_NUMBER" "$TEMP_CONTENT"
 
-bash "$SKILL_DIR/scripts/save_issue.sh" "$ISSUE_NUMBER"
-
-if grep -q "Number: $ISSUE_NUMBER" "$REPO_ROOT/.claude/workflow-state.md"; then
-    pass "Issue number saved"
+EXPECTED_FILE="$REPO_ROOT/docs/issues/issue_${ISSUE_NUMBER}.md"
+if [ -f "$EXPECTED_FILE" ]; then
+    pass "Issue content saved to $EXPECTED_FILE"
 else
-    fail "Issue number not saved"
+    fail "Issue content not saved"
 fi
 
-if [ -n "$BACKUP_STATE" ]; then
-    echo "$BACKUP_STATE" > "$REPO_ROOT/.claude/workflow-state.md"
-fi
+# Cleanup
+rm -f "$TEMP_CONTENT" "$EXPECTED_FILE"
 
 git checkout "$ORIGINAL_BRANCH" 2>/dev/null || git checkout main
 print_test_summary

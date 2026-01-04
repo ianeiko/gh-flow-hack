@@ -43,7 +43,7 @@ TEST_BRANCH=$(create_test_branch "pr-creator")
 echo "# Test change" >> README.md
 git add README.md
 
-bash "$SKILL_DIR/scripts/commit_changes.sh" "$TEST_ISSUE" "Add test feature"
+bash "$SKILL_DIR/scripts/commit_changes.sh" "$TEST_ISSUE" "feat" "Add test feature"
 COMMIT_MSG=$(git log -1 --pretty=%B)
 
 if echo "$COMMIT_MSG" | grep -q "feat: Add test feature"; then
