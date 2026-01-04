@@ -4,7 +4,8 @@
 
 set -e
 
-WORKFLOW_STATE_FILE="/Users/jneiku/code/gh-flow-hack/workflow-state.md"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WORKFLOW_STATE_FILE="$SCRIPT_DIR/../../../../workflow-state.md"
 
 if [ ! -f "$WORKFLOW_STATE_FILE" ]; then
     echo "Error: workflow-state.md not found at $WORKFLOW_STATE_FILE"

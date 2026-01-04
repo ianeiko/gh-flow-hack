@@ -214,6 +214,63 @@ LOCAL_CODER_CALLBACK_URL=""
 REMOTE_CODER_CALLBACK_URL=""
 ```
 
+## Testing
+
+Modular test suite - each skill has its own tests, plus comprehensive E2E testing:
+
+### Test Structure
+```
+tests/
+├── run_all_tests.sh              # Master test runner
+├── test_e2e_workflow.py          # E2E workflow test
+└── fixtures/hello-world/         # Test project fixture
+
+.claude/skills/
+├── ghflow-issue-expander/tests/test_scripts.sh
+├── ghflow-pr-creator/tests/test_scripts.sh
+├── ghflow-code-reviewer/tests/test_scripts.sh
+├── ghflow-feature-implementer/tests/test_scripts.sh
+├── ghflow-orchestrator/tests/test_scripts.sh
+└── ghflow-project-setup/tests/test_scripts.sh
+```
+
+### Quick Start
+```bash
+# Prerequisites
+gh auth login
+cd tests && uv venv && uv pip install -r requirements.txt
+
+# Run all tests (recommended)
+bash run_all_tests.sh
+
+# Or use Makefile
+make -C tests test              # All tests
+make -C tests e2e               # E2E only
+make -C tests skills            # All skill tests
+make -C tests test-pr-creator   # Individual skill
+```
+
+### What's Tested
+- ✅ **E2E Workflow**: Complete idea → issue → implementation → PR → review → merge (tests/test_e2e_workflow.py)
+- ✅ **All 6 Skills**: Each skill has dedicated unit tests for its scripts
+  - ghflow-issue-expander: create_issue.sh, save_issue.sh
+  - ghflow-pr-creator: validate_branch.sh, commit_changes.sh, create_pr.sh
+  - ghflow-code-reviewer: fetch_pr_reviews.sh, aggregate_reviews.sh, check_approval.sh, apply_fixes.sh
+  - ghflow-feature-implementer: fetch_issue.sh, create_branch.sh, save_task.sh
+  - ghflow-orchestrator: init_workflow.sh, check_eligible_issues.sh, poll_label.sh, invoke_skill.sh, cleanup_workflow.sh
+  - ghflow-project-setup: generate_implementation_guide.sh, update_claude_md.sh
+- ✅ **GitHub Integration**: Real GitHub API calls (creates/destroys test repos)
+- ✅ **State Management**: workflow-state.md updates tested across all skills
+- ✅ **Feature Verification**: Final code runs and tests pass
+
+### Test Fixture
+Uses simple "hello world" Python project in `tests/fixtures/hello-world/`:
+- Initial: `print("Hello, World!")`
+- Feature: Add customizable greeting with name argument
+- Tests: Verify both default and custom greetings work
+
+See `tests/README.md` for detailed documentation and `tests/QUICKSTART.md` for quick setup.
+
 ## Important Context
 
 1. **Always check `workflow-state.md` first** - It tracks current phase, issue, PR, and task context

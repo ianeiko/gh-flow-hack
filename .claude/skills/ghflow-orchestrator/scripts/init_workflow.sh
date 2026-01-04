@@ -4,8 +4,17 @@
 
 set -e
 
-# Get repository root
-REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null || echo ".")
+# Get repository root deterministically
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$SCRIPT_DIR/../../../.."
+
+# Verify we're in a git repository
+if [ ! -d "$REPO_ROOT/.git" ]; then
+    echo "Error: Could not find repository root (.git directory not found)"
+    echo "Expected repo root at: $REPO_ROOT"
+    exit 1
+fi
+
 WORKFLOW_STATE_FILE="${REPO_ROOT}/workflow-state.md"
 
 # Create workflow state template
