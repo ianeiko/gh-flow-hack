@@ -183,3 +183,4 @@ echo $GITHUB_TOKEN
 2. Read `CLAUDE.md` for full architecture
 3. Check `docs/PLUGIN_MIGRATION.md` for plugin migration details
 4. Review `docs/tech_implementation.md` for Deep Agents patterns
+# Test change for code review
